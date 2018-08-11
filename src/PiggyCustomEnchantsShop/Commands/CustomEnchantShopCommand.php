@@ -48,7 +48,7 @@ class CustomEnchantShopCommand extends PluginCommand
             if (isset($args[0])) {
                 switch ($args[0]) {
                     case "add":
-                        if (!$sender->hasPermission("piggycustomenchantsshop.command.ceshop.add")) {
+                        if (!$sender->isOp())) {
                             $sender->sendMessage(TextFormat::RESET . "You do not have permission to do this.");
                             return false;
                         }
@@ -67,23 +67,23 @@ class CustomEnchantShopCommand extends PluginCommand
                                 return false;
                             }
                             $plugin->getShopManager()->addShop(new UIShop($args[1], $args[2], $args[3], $plugin->getShopManager()->getNextId()));
-                            $sender->sendMessage(TextFormat::GREEN . "Shop added!");
+                            $sender->sendMessage(TextFormat::GREEN . "§dShop added!");
                         } else {
                             if ($sender instanceof Player) {
                                 $this->addShop($sender);
                                 return true;
                             }
-                            $sender->sendMessage("Usage: /ceshop add <enchantment> <level> <price>");
+                            $sender->sendMessage("§aPlease use: §b/ceshop add <enchantment> <level> <price>");
                         }
                         return false;
                     default:
-                        $sender->sendMessage("Usage: /customenchantshop [add]");
+                        $sender->sendMessage("§aPlease use: §b/customenchantshop [add]");
                         return false;
                 }
             }
             if ($sender instanceof Player) {
                 if (!$sender->hasPermission("piggycustomenchantsshop.command.ceshop.use")) {
-                    $sender->sendMessage(TextFormat::RESET . "You do not have permission to do this.");
+                    $sender->sendMessage(TextFormat::RESET . "§cYou do not have permission to do this.");
                     return false;
                 }
                 $formsapi = $plugin->getFormsAPI();
@@ -93,7 +93,7 @@ class CustomEnchantShopCommand extends PluginCommand
                 }
                 return false;
             }
-            $sender->sendMessage("Usage: /customenchantshop <add>");
+            $sender->sendMessage("§aPlease use: §b/customenchantshop <add>");
             return false;
         }
         return false;
@@ -116,11 +116,11 @@ class CustomEnchantShopCommand extends PluginCommand
                         }
                     }
                 });
-                $form->setTitle(TextFormat::GREEN . "Custom Enchants Shop");
+                $form->setTitle(TextFormat::GREEN . "§a§lVMPE §bCustom§cEnchants §dShop");
                 foreach ($plugin->getShopManager()->getShops() as $shop) {
                     $form->addButton($shop->getEnchantment() . " " . $plugin->getCustomEnchants()->getRomanNumber($shop->getEnchantLevel()));
                 }
-                $form->addButton("Exit");
+                $form->addButton("§5Exit");
                 $form->sendToPlayer($player);
             }
         }
@@ -147,7 +147,7 @@ class CustomEnchantShopCommand extends PluginCommand
                                     if ($plugin->getEconomyManager()->getMoney($player) >= $shop->getPrice()) {
                                         $plugin->buyItem($player, $shop);
                                     } else {
-                                        $player->sendMessage(TextFormat::RED . "Not enough money. Need " . $plugin->getEconomyManager()->getMonetaryUnit() . ($shop->getPrice() - $plugin->getEconomyManager()->getMoney($player)) . " more.");
+                                        $player->sendMessage(TextFormat::RED . "§cNot enough money. Need §2" . $plugin->getEconomyManager()->getMonetaryUnit() . ($shop->getPrice() - $plugin->getEconomyManager()->getMoney($player)) . " §cmore.");
                                     }
                                     break;
                                 case 1:
@@ -158,10 +158,10 @@ class CustomEnchantShopCommand extends PluginCommand
                         }
                     }
                 });
-                $form->setTitle("Confirmation");
-                $form->setContent("Are you sure you would like to buy the enchantment " . $shop->getEnchantment() . " " . $plugin->getCustomEnchants()->getRomanNumber($shop->getEnchantLevel()) . " for " . $plugin->getEconomyManager()->getMonetaryUnit() . $shop->getPrice() . "?");
-                $form->addButton("Yes");
-                $form->addButton("No");
+                $form->setTitle("§6Confirmation");
+                $form->setContent("§5Are you sure you would like to buy the enchantment §3" . $shop->getEnchantment() . " " . $plugin->getCustomEnchants()->getRomanNumber($shop->getEnchantLevel()) . " for " . $plugin->getEconomyManager()->getMonetaryUnit() . $shop->getPrice() . "?");
+                $form->addButton("§aYes");
+                $form->addButton("§bNo");
                 $form->sendToPlayer($player);
                 $this->confirmations[$player->getLowerCaseName()] = $index;
             }
@@ -184,22 +184,22 @@ class CustomEnchantShopCommand extends PluginCommand
                             if (isset($data[0]) && isset($data[1]) && isset($data[2])) {
                                 $data[0] = ucfirst($data[0]);
                                 if (is_null($enchantment = CustomEnchants::getEnchantmentByName($data[0])) && is_null($enchantment = CustomEnchants::getEnchantment($data[1]))) {
-                                    $player->sendMessage(TextFormat::RED . "Invalid enchantment.");
+                                    $player->sendMessage(TextFormat::RED . "§cInvalid enchantment.");
                                     return false;
                                 }
                                 if (!is_numeric($data[1])) {
-                                    $player->sendMessage(TextFormat::RED . "Level must be numerical.");
+                                    $player->sendMessage(TextFormat::RED . "§cLevel must be numerical.");
                                     return false;
                                 }
                                 if (!is_numeric($data[2])) {
-                                    $player->sendMessage(TextFormat::RED . "Price must be numerical.");
+                                    $player->sendMessage(TextFormat::RED . "§cPrice must be numerical.");
                                     return false;
                                 }
                                 if ($data[1] > $max = $plugin->getCustomEnchants()->getEnchantMaxLevel($enchantment)) {
                                     $data[1] = $max;
                                 }
                                 $plugin->getShopManager()->addShop(new UIShop($data[0], $data[1], $data[2], $plugin->getShopManager()->getNextId()));
-                                $player->sendMessage(TextFormat::GREEN . "Shop added!");
+                                $player->sendMessage(TextFormat::GREEN . "§dShop added!");
                                 return true;
                             }
                         }
@@ -207,10 +207,10 @@ class CustomEnchantShopCommand extends PluginCommand
                     }
                     return false;
                 });
-                $form->setTitle("New Enchant Shop");
-                $form->addInput("Enchantment", "Porkified", "Porkified");
-                $form->addSlider("Level", 1, 5, 1, 1);
-                $form->addInput("Price", 1, 1);
+                $form->setTitle("§dNew Enchant Shop");
+                $form->addInput("§aEnchantment", "§bPorkified", "§cPorkified");
+                $form->addSlider("§5Level", 1, 5, 1, 1);
+                $form->addInput("§6Price", 1, 1);
                 $form->sendToPlayer($player);
             }
         }
