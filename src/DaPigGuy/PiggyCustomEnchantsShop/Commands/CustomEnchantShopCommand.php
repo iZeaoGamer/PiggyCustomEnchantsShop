@@ -47,13 +47,13 @@ class CustomEnchantShopCommand extends PluginCommand
             if (isset($args[0])) {
                 switch ($args[0]) {
                     case "add":
-                        if (!$sender->hasPermission("piggycustomenchantsshop.command.ceshop.add")) {
+                        if (!$sender->hasPermission("enchantshop.add")) {
                             $sender->sendMessage(TextFormat::RESET . "You do not have permission to do this.");
                             return;
                         }
                         if (count($args) >= 4) {
                             $args[1] = ucfirst($args[1]);
-                            if (is_null($enchantment = CustomEnchants::getEnchantmentByName($args[1])) && is_null($enchantment = CustomEnchants::getEnchantment($args[1]))) {
+                            if (is_null($enchantment = Enchantment::getEnchantmentByName($args[1])) && is_null($enchantment = Enchantment::getEnchantment($args[1]))) {
                                 $sender->sendMessage(TextFormat::RED . "Invalid enchantment.");
                                 return;
                             }
@@ -72,11 +72,11 @@ class CustomEnchantShopCommand extends PluginCommand
                                 $this->addShop($sender);
                                 return;
                             }
-                            $sender->sendMessage("Usage: /ceshop add <enchantment> <level> <price>");
+                            $sender->sendMessage("Usage: /enchantshop add <enchantment> <level> <price>");
                         }
                         return;
                     default:
-                        $sender->sendMessage("Usage: /customenchantshop [add]");
+                        $sender->sendMessage("Usage: /enchantshop [add]");
                         return;
                 }
             }
@@ -88,7 +88,7 @@ class CustomEnchantShopCommand extends PluginCommand
                 $this->shopForm($sender);
                 return;
             }
-            $sender->sendMessage("Usage: /customenchantshop <add>");
+            $sender->sendMessage("Usage: /enchantshop <add>");
         }
     }
 
@@ -107,9 +107,9 @@ class CustomEnchantShopCommand extends PluginCommand
                     }
                 }
             });
-            $form->setTitle(TextFormat::GREEN . "Custom Enchants Shop");
+            $form->setTitle(TextFormat::GREEN . "Enchant Shop");
             foreach ($plugin->getShopManager()->getShops() as $shop) {
-                $form->addButton($shop->getEnchantment() . " " . $plugin->getCustomEnchants()->getRomanNumber($shop->getEnchantLevel()));
+                $form->addButton($shop->getEnchantment() . " " . $shop->getEnchantLevel()));
             }
             $form->addButton("Exit");
             $player->sendForm($form);
@@ -147,7 +147,7 @@ class CustomEnchantShopCommand extends PluginCommand
                 }
             });
             $form->setTitle("Confirmation");
-            $form->setContent("Are you sure you would like to buy the enchantment " . $shop->getEnchantment() . " " . $plugin->getCustomEnchants()->getRomanNumber($shop->getEnchantLevel()) . " for " . $plugin->getEconomyManager()->getMonetaryUnit() . $shop->getPrice() . "?");
+            $form->setContent("Are you sure you would like to buy the enchantment " . $shop->getEnchantment() . " " . $shop->getEnchantLevel()) . " for " . $plugin->getEconomyManager()->getMonetaryUnit() . $shop->getPrice() . "?");
             $form->addButton("Yes");
             $form->addButton("No");
             $player->sendForm($form);
@@ -168,7 +168,7 @@ class CustomEnchantShopCommand extends PluginCommand
                     if (!is_null($data)) {
                         if (isset($data[0]) && isset($data[1]) && isset($data[2])) {
                             $data[0] = ucfirst($data[0]);
-                            if (is_null($enchantment = CustomEnchants::getEnchantmentByName($data[0])) && is_null($enchantment = CustomEnchants::getEnchantment($data[1]))) {
+                            if (is_null($enchantment = Enchantment::getEnchantmentByName($data[0])) && is_null($enchantment = Enchantment::getEnchantment($data[1]))) {
                                 $player->sendMessage(TextFormat::RED . "Invalid enchantment.");
                                 return;
                             }
@@ -179,9 +179,6 @@ class CustomEnchantShopCommand extends PluginCommand
                             if (!is_numeric($data[2])) {
                                 $player->sendMessage(TextFormat::RED . "Price must be numerical.");
                                 return;
-                            }
-                            if ($data[1] > $max = $plugin->getCustomEnchants()->getEnchantMaxLevel($enchantment)) {
-                                $data[1] = $max;
                             }
                             $plugin->getShopManager()->addShop(new UIShop($data[0], $data[1], $data[2], $plugin->getShopManager()->getNextId()));
                             $player->sendMessage(TextFormat::GREEN . "Shop added!");
