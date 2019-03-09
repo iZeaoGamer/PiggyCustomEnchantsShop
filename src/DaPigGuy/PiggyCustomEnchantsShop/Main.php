@@ -11,6 +11,8 @@ use DaPigGuy\PiggyCustomEnchantsShop\Shops\SignShopsManager;
 use DaPigGuy\PiggyCustomEnchantsShop\Shops\UIShopsManager;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\item\enchantment\EnchantmentInstance;
+use pocketmine\item\enchantment\Enchantment;
 
 /**
  * Class Main
@@ -110,9 +112,10 @@ class Main extends PluginBase
      */
     public function buyItem(Player $player, Shop $shop)
     {
-        if ($this->getCustomEnchants()->canBeEnchanted($player->getInventory()->getItemInHand(), CustomEnchants::getEnchantmentByName($shop->getEnchantment()), $shop->getEnchantLevel()) === true) {
-            $this->getEconomyManager()->takeMoney($player, $shop->getPrice());
-        }
-        $player->getInventory()->setItemInHand($this->getCustomEnchants()->addEnchantment($player->getInventory()->getItemInHand(), $shop->getEnchantment(), $shop->getEnchantLevel(), true, $player)); //Still do it anyway to send the issue to player
-    }
+        $item = $player->getInventory()->getItemInHand();
+            $item->addEnchantment(new EnchantmentInstance(Enchantment::getEnchantmentByName((string)$shop->getEnchantment(), $shop->getEnchantLevel(), true, $player)); //Still do it anyway to send the issue to player
+                                  $this->getEconomyManager()->takeMoney($player, $shop->getPrice());
+                                  }
+  $player->getInventory()->setItemInHand($item);
+                                  }
 }
